@@ -7880,6 +7880,7 @@ local ProtectedUserIds = {
     [7891343463] = true,
     [1522167311] = true,
     [3654478781] = true,
+    [5368492652] = true,
     [5008297968] = true,	
 }
 
