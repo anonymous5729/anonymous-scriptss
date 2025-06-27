@@ -14602,21 +14602,6 @@ cmd.add({"unloopspook", "unloopscare"}, {"unloopspook (unloopscare)", "Stops the
 	loopspook = false
 end)
 
-Airwalker, awPart = nil, nil
-local airwalk = {
-	Vars = {
-		keybinds = {
-			Increase = Enum.KeyCode.E,
-			Decrease = Enum.KeyCode.Q,
-		},
-		decrease = false,
-		increase = false,
-		offset = 0,
-	},
-	connections = {},
-	guis = {},
-}
-
 cmd.add({"airwalk", "float", "aw"}, {"airwalk (float, aw)", "Press space to go up, unairwalk to stop"}, function()
 	DoNotif(IsOnMobile and "Airwalk: ON" or "Airwalk: ON (Q And E)")
 	if Airwalker then Airwalker:Disconnect() Airwalker = nil end
@@ -14656,6 +14641,9 @@ cmd.add({"airwalk", "float", "aw"}, {"airwalk (float, aw)", "Press space to go u
 		return button
 	end
 
+	airwalk.Vars.increase = false
+	airwalk.Vars.decrease = false
+
 	if IsOnMobile then
 		local guiDown = InstanceNew("ScreenGui")
 		NaProtectUI(guiDown)
@@ -14688,15 +14676,13 @@ cmd.add({"airwalk", "float", "aw"}, {"airwalk (float, aw)", "Press space to go u
 
 	Airwalker = RunService.Stepped:Connect(function()
 		if not awPart then Airwalker:Disconnect() return end
-		airwalk.Vars.offset = airwalk.Vars.decrease and 5 or (airwalk.Vars.increase and 3.5 or 4)
-		if airwalk.Vars.offset == 4 then
-			local smalldis = getRoot(getChar()).CFrame.y - airwalk.Y
-			if smalldis < 0.01 then
-				getRoot(getChar()).CFrame = CFrame.new(getRoot(getChar()).CFrame.X, airwalk.Y, getRoot(getChar()).CFrame.Z) * getRoot(getChar()).CFrame.Rotation
-			end
+		if airwalk.Vars.increase then
+			airwalk.Y = airwalk.Y + 0.45
+		elseif airwalk.Vars.decrease then
+			airwalk.Y = airwalk.Y - 0.45
 		end
-		airwalk.Y = getRoot(getChar()).CFrame.y
-		awPart.CFrame = getRoot(getChar()).CFrame - Vector3.new(0, airwalk.Vars.offset, 0)
+		getRoot(getChar()).CFrame = CFrame.new(getRoot(getChar()).CFrame.X, airwalk.Y, getRoot(getChar()).CFrame.Z) * getRoot(getChar()).CFrame.Rotation
+		awPart.CFrame = CFrame.new(getRoot(getChar()).CFrame.X, airwalk.Y - 4, getRoot(getChar()).CFrame.Z)
 	end)
 end)
 
