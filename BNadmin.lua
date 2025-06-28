@@ -14603,87 +14603,123 @@ cmd.add({"unloopspook", "unloopscare"}, {"unloopspook (unloopscare)", "Stops the
 end)
 
 cmd.add({"airwalk", "float", "aw"}, {"airwalk (float, aw)", "Press space to go up, unairwalk to stop"}, function()
-	DoNotif(IsOnMobile and "Airwalk: ON" or "Airwalk: ON (Q And E)")
-	if Airwalker then Airwalker:Disconnect() Airwalker = nil end
-	if awPart then awPart:Destroy() awPart = nil end
+    DoNotif(IsOnMobile and "Airwalk: ON" or "Airwalk: ON (Q And E)")
+    if Airwalker then Airwalker:Disconnect() Airwalker = nil end
+    if awPart then awPart:Destroy() awPart = nil end
 
-	function createButton(parent, text, position, callbackDown, callbackUp)
-		local button = InstanceNew("TextButton")
-		button.Parent = parent
-		button.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-		button.BackgroundTransparency = 0
-		button.Position = position
-		button.Size = UDim2.new(0.05, 0, 0.1, 0)
-		button.Font = Enum.Font.SourceSansBold
-		button.Text = text
-		button.TextColor3 = Color3.fromRGB(255, 255, 255)
-		button.TextSize = 18
-		button.TextScaled = true
-		button.AutoButtonColor = false
+    airwalk.Vars.increase = false
+    airwalk.Vars.decrease = false
+    airwalk.guis = airwalk.guis or {}
+    airwalk.connections = airwalk.connections or {}
 
-		local corner = InstanceNew("UICorner", button)
-		corner.CornerRadius = UDim.new(0.2, 0)
+    function createButton(parent, text, position, callbackDown, callbackUp)
+        local button = Instance.new("TextButton")
+        button.Parent = parent
+        button.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+        button.BackgroundTransparency = 0
+        button.Position = position
+        button.Size = UDim2.new(0.1, 0, 0.15, 0)
+        button.Font = Enum.Font.SourceSansBold
+        button.Text = text
+        button.TextColor3 = Color3.fromRGB(255, 255, 255)
+        button.TextSize = 18
+        button.TextScaled = true
+        button.AutoButtonColor = false
 
-		local stroke = InstanceNew("UIStroke", button)
-		stroke.Color = Color3.fromRGB(255, 255, 255)
-		stroke.Thickness = 2
+        local corner = Instance.new("UICorner")
+        corner.CornerRadius = UDim.new(0.2, 0)
+        corner.Parent = button
 
-		local hoverEffect = function(isHovering)
-			button.BackgroundColor3 = isHovering and Color3.fromRGB(70, 70, 70) or Color3.fromRGB(45, 45, 45)
-		end
+        local stroke = Instance.new("UIStroke")
+        stroke.Color = Color3.fromRGB(255, 255, 255)
+        stroke.Thickness = 2
+        stroke.Parent = button
 
-		button.MouseEnter:Connect(function() hoverEffect(true) end)
-		button.MouseLeave:Connect(function() hoverEffect(false) end)
-		button.MouseButton1Down:Connect(callbackDown)
-		button.MouseButton1Up:Connect(callbackUp)
-		gui.draggerV2(button)
+        button.MouseEnter:Connect(function() button.BackgroundColor3 = Color3.fromRGB(70, 70, 70) end)
+        button.MouseLeave:Connect(function() button.BackgroundColor3 = Color3.fromRGB(45, 45, 45) end)
+        button.MouseButton1Down:Connect(callbackDown)
+        button.MouseButton1Up:Connect(callbackUp)
+        if gui and gui.draggerV2 then gui.draggerV2(button) end
 
-		return button
-	end
+        return button
+    end
 
-	airwalk.Vars.increase = false
-	airwalk.Vars.decrease = false
+    if IsOnMobile then
+        if airwalk.guis.down then airwalk.guis.down:Destroy() end
+        if airwalk.guis.up then airwalk.guis.up:Destroy() end
 
-	if IsOnMobile then
-		local guiDown = InstanceNew("ScreenGui")
-		NaProtectUI(guiDown)
-		guiDown.ResetOnSpawn = false
-		airwalk.guis.down = guiDown
-		createButton(guiDown, "DOWN", UDim2.new(0.9, 0, 0.7, 0), function() airwalk.Vars.decrease = true end, function() airwalk.Vars.decrease = false end)
+        local guiDown = Instance.new("ScreenGui")
+        guiDown.Name = "AirwalkDownGui"
+        if syn and syn.protect_gui then syn.protect_gui(guiDown) end
+        guiDown.ResetOnSpawn = false
+        guiDown.Parent = game:GetService("Players").LocalPlayer.PlayerGui
+        airwalk.guis.down = guiDown
 
-		local guiUp = InstanceNew("ScreenGui")
-		NaProtectUI(guiUp)
-		guiUp.ResetOnSpawn = false
-		airwalk.guis.up = guiUp
-		createButton(guiUp, "UP", UDim2.new(0.9, 0, 0.5, 0), function() airwalk.Vars.increase = true end, function() airwalk.Vars.increase = false end)
-	else
-		airwalk.connections.inputBegan = uis.InputBegan:Connect(function(input)
-			if input.KeyCode == airwalk.Vars.keybinds.Increase then airwalk.Vars.increase = true end
-			if input.KeyCode == airwalk.Vars.keybinds.Decrease then airwalk.Vars.decrease = true end
-		end)
-		airwalk.connections.inputEnded = uis.InputEnded:Connect(function(input)
-			if input.KeyCode == airwalk.Vars.keybinds.Increase then airwalk.Vars.increase = false end
-			if input.KeyCode == airwalk.Vars.keybinds.Decrease then airwalk.Vars.decrease = false end
-		end)
-	end
+        createButton(guiDown, "DOWN", UDim2.new(0.85, 0, 0.7, 0),
+            function() airwalk.Vars.decrease = true end,
+            function() airwalk.Vars.decrease = false end
+        )
 
-	awPart = InstanceNew("Part", workspace)
-	awPart.Size = Vector3.new(7, 2, 3)
-	awPart.CFrame = getRoot(getChar()).CFrame - Vector3.new(0, 4, 0)
-	awPart.Transparency = 1
-	awPart.Anchored = true
-	airwalk.Y = getRoot(getChar()).CFrame.y
+        local guiUp = Instance.new("ScreenGui")
+        guiUp.Name = "AirwalkUpGui"
+        if syn and syn.protect_gui then syn.protect_gui(guiUp) end
+        guiUp.ResetOnSpawn = false
+        guiUp.Parent = game:GetService("Players").LocalPlayer.PlayerGui
+        airwalk.guis.up = guiUp
 
-	Airwalker = RunService.Stepped:Connect(function()
-		if not awPart then Airwalker:Disconnect() return end
-		if airwalk.Vars.increase then
-			airwalk.Y = airwalk.Y + 0.45
-		elseif airwalk.Vars.decrease then
-			airwalk.Y = airwalk.Y - 0.45
-		end
-		getRoot(getChar()).CFrame = CFrame.new(getRoot(getChar()).CFrame.X, airwalk.Y, getRoot(getChar()).CFrame.Z) * getRoot(getChar()).CFrame.Rotation
-		awPart.CFrame = CFrame.new(getRoot(getChar()).CFrame.X, airwalk.Y - 4, getRoot(getChar()).CFrame.Z)
-	end)
+        createButton(guiUp, "UP", UDim2.new(0.85, 0, 0.5, 0),
+            function() airwalk.Vars.increase = true end,
+            function() airwalk.Vars.increase = false end
+        )
+    else
+        if airwalk.connections.inputBegan then airwalk.connections.inputBegan:Disconnect() end
+        if airwalk.connections.inputEnded then airwalk.connections.inputEnded:Disconnect() end
+
+        airwalk.connections.inputBegan = uis.InputBegan:Connect(function(input, gpe)
+            if gpe then return end
+            if input.KeyCode == (airwalk.Vars.keybinds and airwalk.Vars.keybinds.Increase or Enum.KeyCode.Space) then
+                airwalk.Vars.increase = true
+            end
+            if input.KeyCode == (airwalk.Vars.keybinds and airwalk.Vars.keybinds.Decrease or Enum.KeyCode.LeftControl) then
+                airwalk.Vars.decrease = true
+            end
+        end)
+        airwalk.connections.inputEnded = uis.InputEnded:Connect(function(input, gpe)
+            if gpe then return end
+            if input.KeyCode == (airwalk.Vars.keybinds and airwalk.Vars.keybinds.Increase or Enum.KeyCode.Space) then
+                airwalk.Vars.increase = false
+            end
+            if input.KeyCode == (airwalk.Vars.keybinds and airwalk.Vars.keybinds.Decrease or Enum.KeyCode.LeftControl) then
+                airwalk.Vars.decrease = false
+            end
+        end)
+    end
+
+    awPart = Instance.new("Part")
+    awPart.Name = "AirwalkPart"
+    awPart.Size = Vector3.new(7, 2, 3)
+    awPart.Anchored = true
+    awPart.CanCollide = false
+    awPart.Transparency = 1
+    awPart.Parent = workspace
+
+    local root = getRoot(getChar())
+    airwalk.Y = root.CFrame.Position.Y
+
+    Airwalker = RunService.Stepped:Connect(function()
+        if not awPart or not root or not root.Parent then if Airwalker then Airwalker:Disconnect() end return end
+
+        if airwalk.Vars.increase then
+            airwalk.Y = airwalk.Y + 0.45
+        elseif airwalk.Vars.decrease then
+            airwalk.Y = airwalk.Y - 0.45
+        end
+
+        local pos = root.CFrame.Position
+        local cf = CFrame.new(pos.X, airwalk.Y, pos.Z) * root.CFrame.Rotation
+        root.CFrame = cf
+        awPart.CFrame = CFrame.new(pos.X, airwalk.Y - 4, pos.Z)
+    end)
 end)
 
 cmd.add({"unairwalk", "unfloat", "unaw"}, {"unairwalk (unfloat, unaw)", "Stops the airwalk command"}, function()
