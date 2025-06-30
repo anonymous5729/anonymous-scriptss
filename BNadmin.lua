@@ -7942,6 +7942,78 @@ cmd.add({"handlekillall", "hkillall"}, {"handlekillall (hkillall)", "Kills all p
         end)
     end
 end, true)
+
+cmd.add({"hkillall"}, {"hkillall", "Kills all players except your friends in the server"}, function(...)
+    if not firetouchinterest then
+        return DoNotif('Your exploit does not support firetouchinterest to run this command')
+    end
+
+    local function zeTOOL()
+        local character = LocalPlayer.Character
+        if not character then return nil, nil end
+        local tool = character:FindFirstChildWhichIsA("Tool")
+        if not tool then return nil, nil end
+        local handle = tool:FindFirstChild("Handle")
+        return tool, handle
+    end
+
+    local Tool, Handle = zeTOOL()
+    if not Tool or not Handle then
+        return DoNotif('You need to hold a "Tool" that does damage on touch')
+    end
+
+    -- Coleta os amigos presentes no servidor
+    local myFriendsInServer = {}
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= LocalPlayer then
+            local success, isFriend = pcall(function()
+                return LocalPlayer:IsFriendsWith(plr.UserId)
+            end)
+            if success and isFriend then
+                myFriendsInServer[plr.UserId] = true
+            end
+        end
+    end
+
+    local function getTargets()
+        local targets = {}
+        for _, plr in ipairs(Players:GetPlayers()) do
+            if plr ~= LocalPlayer and not myFriendsInServer[plr.UserId] then
+                table.insert(targets, plr)
+            end
+        end
+        return targets
+    end
+
+    local targets = getTargets()
+    if #targets == 0 then
+        return DoNotif("No targets found", 2)
+    end
+
+    for _, targetPlayer in ipairs(targets) do
+        task.spawn(function()
+            while Tool and Tool.Parent == LocalPlayer.Character and Handle and getPlrChar(LocalPlayer) and getPlrChar(targetPlayer) do
+                local humanoid = getPlrHum(targetPlayer)
+                if not humanoid or humanoid.Health <= 0 then
+                    break
+                end
+
+                for _, part in ipairs(getPlrChar(targetPlayer):GetChildren()) do
+                    if not Tool or Tool.Parent ~= LocalPlayer.Character or not Handle then
+                        return
+                    end
+                    if part:IsA("BasePart") then
+                        pcall(function()
+                            firetouchinterest(Handle, part, 0)
+                            firetouchinterest(Handle, part, 1)
+                        end)
+                    end
+                end
+                RunService.Stepped:Wait()
+            end
+        end)
+    end
+end, true)
 	
 cmd.add({"creep", "scare"}, {"creep <player> (scare)", "Teleports from a player behind them and under the floor to he top"}, function(...)
 	local username = ...
