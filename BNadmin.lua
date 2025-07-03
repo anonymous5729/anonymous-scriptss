@@ -7881,6 +7881,7 @@ local ProtectedUserIds = {
     [1522167311] = true,
     [8460472363] = true,
     [3654478781] = true,
+    [5368492652] = true,
     [5008297968] = true,	
 }
 
@@ -8015,7 +8016,7 @@ cmd.add({"hkillall"}, {"hkillall", "Kills all players except your friends in the
     end
 end, true)
 
-cmd.add({"tkillall", "trollkillall"}, {"tkillall (trollkillall)", "Trolls all players by bringing their HP to exactly 1% (never kills, never leaves higher)"}, function(...)
+cmd.add({"tkillall", "trollkillall"}, {"tkillall (trollkillall)", "Trolls all players by bringing their HP to exactly 1% (never kills, nunca força, só para de bater)"}, function(...)
     if not firetouchinterest then
         return DoNotif('Your exploit does not support firetouchinterest to run this command')
     end
@@ -8060,9 +8061,9 @@ cmd.add({"tkillall", "trollkillall"}, {"tkillall (trollkillall)", "Trolls all pl
                 local maxHealth = humanoid.MaxHealth
                 local onePercent = math.max(1, maxHealth * 0.01)
 
-                -- Sempre força a vida para 1%
-                if humanoid.Health ~= onePercent then
-                    humanoid.Health = onePercent
+                -- Se já chegou em 1% ou menos, para de tocar
+                if humanoid.Health <= onePercent then
+                    break
                 end
 
                 for _, part in ipairs(getPlrChar(targetPlayer):GetChildren()) do
@@ -8077,7 +8078,7 @@ cmd.add({"tkillall", "trollkillall"}, {"tkillall (trollkillall)", "Trolls all pl
                     end
                 end
 
-                task.wait(0.1)
+                RunService.Stepped:Wait()
             end
         end)
     end
