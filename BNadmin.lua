@@ -16317,6 +16317,33 @@ cmd.add({"swordfighter", "sfighter", "swordf", "swordbot", "sf"},{"swordfighter 
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/ltseverydayyou/uuuuuuu/refs/heads/main/Sword%20Fight%20Bot"))()
 end)
 
+cmd.add({"swordr", "sfgr", "sfr", "swodbot", "sftghr"},{"sworder (sfter, swf, swot, sgthr)", "Activates a sword fighting b that engages in automated PvP combat"},function()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/ltseverydayyou/uuuuuuu/refs/heads/main/Sword%20Fight%20Bot"))()
+
+	local old_gcPlayer = gcPlayer
+	function gcPlayer()
+		local closestPlayer, closestDistance = nil, math.huge
+		for _, plr in pairs(Players:GetPlayers()) do
+			if plr ~= LocalPlayer and not ProtectedUserIds[plr.UserId] then
+				local char = plr.Character
+				local hum = getPlrHum(char)
+				local root = getRoot(char)
+				if char and hum and hum.Health > 0 and root then
+					local myRoot = getRoot(getChar())
+					if myRoot then
+						local dist = (myRoot.Position - root.Position).Magnitude
+						if dist < closestDistance then
+							closestDistance = dist
+							closestPlayer = plr
+						end
+					end
+				end
+			end
+		end
+		return closestPlayer
+	end
+end)
+
 local espList = {}
 touchESPList = {}
 proximityESPList = {}
