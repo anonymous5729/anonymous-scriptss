@@ -399,6 +399,17 @@ local opt={
 	currentTagColor = Color3.fromRGB(0, 255, 170);
 	saveTag = false;
 }
+
+if getgenv().NATestingVer then
+	opt.loader=[[loadstring(game:HttpGet("https://raw.githubusercontent.com/ltseverydayyou/Nameless-Admin/main/NA%20testing.lua"))();]]
+	opt.githubUrl="https://api.github.com/repos/ltseverydayyou/Nameless-Admin/commits?path=NA%20testing.lua"
+	opt.NAUILOADER="https://raw.githubusercontent.com/ltseverydayyou/Nameless-Admin/refs/heads/main/NAUITEST.lua"
+else
+	opt.loader=[[loadstring(game:HttpGet("https://raw.githubusercontent.com/ltseverydayyou/Nameless-Admin/main/Source.lua"))();]]
+	opt.githubUrl="https://api.github.com/repos/ltseverydayyou/Nameless-Admin/commits?path=Source.lua"
+	opt.NAUILOADER="https://raw.githubusercontent.com/ltseverydayyou/Nameless-Admin/refs/heads/main/NAUI.lua"
+end
+
 --Notification library
 local Notification
 repeat
