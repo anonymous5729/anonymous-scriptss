@@ -449,7 +449,6 @@ local CustomFunctionSupport=isfile and isfolder and writefile and readfile and l
 local FileSupport = isfile and isfolder and writefile and readfile and makefolder
 local NAfiles = {
 	NAFILEPATH = "Nameless-Admin";
-	NAWAYPOINTFILEPATH = "Nameless-Admin/Waypoints";
 	NAPLUGINFILEPATH = "Nameless-Admin/Plugins";
 	NAASSETSFILEPATH = "Nameless-Admin/Assets";
 	NAPREFIXPATH = "Nameless-Admin/Prefix.txt";
