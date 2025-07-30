@@ -472,10 +472,6 @@ if FileSupport then
 		makefolder(NAfiles.NAFILEPATH)
 	end
 
-	if not isfolder(NAfiles.NAWAYPOINTFILEPATH) then
-		makefolder(NAfiles.NAWAYPOINTFILEPATH)
-	end
-
 	if not isfolder(NAfiles.NAPLUGINFILEPATH) then
 		makefolder(NAfiles.NAPLUGINFILEPATH)
 	end
