@@ -402,12 +402,8 @@ local opt={
 
 if getgenv().NATestingVer then
 	opt.loader=[[loadstring(game:HttpGet("https://raw.githubusercontent.com/anonymous5729/anonymous-scriptss/main/BNadmin.lua"))();]]
-	opt.githubUrl="https://api.github.com/repos/ltseverydayyou/Nameless-Admin/commits?path=NA%20testing.lua"
-	opt.NAUILOADER="https://raw.githubusercontent.com/ltseverydayyou/Nameless-Admin/refs/heads/main/NAUITEST.lua"
 else
 	opt.loader=[[loadstring(game:HttpGet("https://raw.githubusercontent.com/anonymous5729/anonymous-scriptss/main/BNadmin.lua"))();]]
-	opt.githubUrl="https://api.github.com/repos/ltseverydayyou/Nameless-Admin/commits?path=Source.lua"
-	opt.NAUILOADER="https://raw.githubusercontent.com/ltseverydayyou/Nameless-Admin/refs/heads/main/NAUI.lua"
 end
 
 --Notification library
