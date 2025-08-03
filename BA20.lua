@@ -4659,59 +4659,56 @@ Command.Add({
 	end,
 })
 
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local RunService = game:GetService("RunService")
-
-function getPlrChar(plr)
-    return plr and plr.Character
-end
-
-function getPlrHum(plr)
-    local char = getPlrChar(plr)
-    return char and char:FindFirstChildWhichIsA("Humanoid")
-end
-
 Command.Add({
     Aliases = { "hkillall" },
     Description = "Kills all players except your friends in the server",
-    Arguments = {},
-    Task = function()
+    Arguments = {
+        { Name = "Target", Type = "Player", Optional = true }, -- agora é opcional
+    },
+    Task = function(Input)
+        local Players = game:GetService("Players")
+        local LocalPlayer = Players.LocalPlayer
+
+        local function getPlrChar(plr)
+            return plr and plr.Character
+        end
+
         if not firetouchinterest then
             return "Error", "Seu exploit não suporta firetouchinterest para rodar esse comando"
         end
 
-        local function zeTOOL()
-            local character = LocalPlayer.Character
-            if not character then return nil, nil end
-            local tool = character:FindFirstChildWhichIsA("Tool")
-            if not tool then return nil, nil end
-            local handle = tool:FindFirstChild("Handle")
-            return tool, handle
-        end
-
-        local Tool, Handle = zeTOOL()
-        if not Tool or not Handle then
-            return "Error", 'Você precisa segurar uma Tool com dano por toque'
+        local tool = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildWhichIsA("Tool")
+        local handle = tool and tool:FindFirstChild("Handle")
+        if not tool or not handle then
+            return "Error", 'Você precisa segurar uma Tool com Handle'
         end
 
         -- Coleta amigos no servidor
         local myFriendsInServer = {}
         for _, plr in ipairs(Players:GetPlayers()) do
             if plr ~= LocalPlayer then
-                local success, isFriend = pcall(function()
+                local ok, isFriend = pcall(function()
                     return LocalPlayer:IsFriendsWith(plr.UserId)
                 end)
-                if success and isFriend then
+                if ok and isFriend then
                     myFriendsInServer[plr.UserId] = true
                 end
             end
         end
 
+        -- Define os alvos: se Input tiver jogadores, usa só eles. Se não, pega todos não amigos.
         local targets = {}
-        for _, plr in ipairs(Players:GetPlayers()) do
-            if plr ~= LocalPlayer and not myFriendsInServer[plr.UserId] then
-                table.insert(targets, plr)
+        if Input and #Input > 0 then
+            for _, Target in ipairs(Input) do
+                if Target ~= LocalPlayer and not myFriendsInServer[Target.UserId] then
+                    table.insert(targets, Target)
+                end
+            end
+        else
+            for _, plr in ipairs(Players:GetPlayers()) do
+                if plr ~= LocalPlayer and not myFriendsInServer[plr.UserId] then
+                    table.insert(targets, plr)
+                end
             end
         end
 
@@ -4720,30 +4717,17 @@ Command.Add({
         end
 
         for _, targetPlayer in ipairs(targets) do
-            task.spawn(function()
-                while Tool and Tool.Parent == LocalPlayer.Character and Handle and getPlrChar(targetPlayer) do
-                    local humanoid = getPlrHum(targetPlayer)
-                    if not humanoid or humanoid.Health <= 0 then
-                        break
+            if getPlrChar(targetPlayer) then
+                for _, part in ipairs(getPlrChar(targetPlayer):GetChildren()) do
+                    if part:IsA("BasePart") then
+                        firetouchinterest(handle, part, 0)
+                        firetouchinterest(handle, part, 1)
                     end
-
-                    for _, part in ipairs(getPlrChar(targetPlayer):GetChildren()) do
-                        if not Tool or Tool.Parent ~= LocalPlayer.Character or not Handle then
-                            return
-                        end
-                        if part:IsA("BasePart") then
-                            pcall(function()
-                                firetouchinterest(Handle, part, 0)
-                                firetouchinterest(Handle, part, 1)
-                            end)
-                        end
-                    end
-                    RunService.Stepped:Wait()
                 end
-            end)
+            end
         end
 
-        return "HKillAll", "Todos os alvos foram mortos, exceto seus amigos"
+        return "HKillAll", "Todos os alvos foram mortos (exceto amigos)"
     end,
 })
 
