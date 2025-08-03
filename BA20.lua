@@ -4659,13 +4659,26 @@ Command.Add({
 	end,
 })
 
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
+
+function getPlrChar(plr)
+    return plr and plr.Character
+end
+
+function getPlrHum(plr)
+    local char = getPlrChar(plr)
+    return char and char:FindFirstChildWhichIsA("Humanoid")
+end
+
 Command.Add({
     Aliases = { "hkillall" },
     Description = "Kills all players except your friends in the server",
     Arguments = {},
     Task = function()
         if not firetouchinterest then
-            return "Error", "Your exploit does not support firetouchinterest to run this command"
+            return "Error", "Seu exploit não suporta firetouchinterest para rodar esse comando"
         end
 
         local function zeTOOL()
@@ -4679,10 +4692,10 @@ Command.Add({
 
         local Tool, Handle = zeTOOL()
         if not Tool or not Handle then
-            return "Error", 'You need to hold a "Tool" that does damage on touch'
+            return "Error", 'Você precisa segurar uma Tool com dano por toque'
         end
 
-        -- Coleta os amigos presentes no servidor
+        -- Coleta amigos no servidor
         local myFriendsInServer = {}
         for _, plr in ipairs(Players:GetPlayers()) do
             if plr ~= LocalPlayer then
@@ -4695,24 +4708,20 @@ Command.Add({
             end
         end
 
-        local function getTargets()
-            local targets = {}
-            for _, plr in ipairs(Players:GetPlayers()) do
-                if plr ~= LocalPlayer and not myFriendsInServer[plr.UserId] then
-                    table.insert(targets, plr)
-                end
+        local targets = {}
+        for _, plr in ipairs(Players:GetPlayers()) do
+            if plr ~= LocalPlayer and not myFriendsInServer[plr.UserId] then
+                table.insert(targets, plr)
             end
-            return targets
         end
 
-        local targets = getTargets()
         if #targets == 0 then
-            return "Info", "No targets found"
+            return "Info", "Nenhum alvo encontrado"
         end
 
         for _, targetPlayer in ipairs(targets) do
             task.spawn(function()
-                while Tool and Tool.Parent == LocalPlayer.Character and Handle and getPlrChar(LocalPlayer) and getPlrChar(targetPlayer) do
+                while Tool and Tool.Parent == LocalPlayer.Character and Handle and getPlrChar(targetPlayer) do
                     local humanoid = getPlrHum(targetPlayer)
                     if not humanoid or humanoid.Health <= 0 then
                         break
@@ -4734,7 +4743,7 @@ Command.Add({
             end)
         end
 
-        return "HKillAll", "Killed all targets except friends"
+        return "HKillAll", "Todos os alvos foram mortos, exceto seus amigos"
     end,
 })
 
